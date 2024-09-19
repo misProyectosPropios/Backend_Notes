@@ -34,7 +34,7 @@ public class BBDD {
             resultSet.close();
         }
         catch (Exception e) {
-            System.out.println(e);
+            System.err.println("Exception" + e.getMessage());
         }
         System.out.println();
     }
