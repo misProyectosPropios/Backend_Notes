@@ -2,6 +2,7 @@ import com.mysql.cj.jdbc.MysqlDataSource;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
 
 public class BBDD {
     final private int port;
@@ -128,6 +129,61 @@ public class BBDD {
        Statement statement = this.con.createStatement();
        statement.execute(query);
        statement.close();
+    }
+
+    //requires: table_name must be a name of a table in the database
+    //Ensures: it returns all the rows in the table name with
+    public Note_list get_notes(String table_name) throws SQLException {
+        String[] columns = new String[]{"id", "author", "title", "body", "last_date"};
+        Note_list list = new Note_list();
+        //Create obj statement
+        Statement statement = this.con.createStatement();
+
+        //Execute SQL
+        ResultSet resultSet = statement.executeQuery("SELECT * FROM " + table_name);
+
+        //Run over the resultSet
+
+        while (resultSet.next()) {
+            String[] values_notes = new String[5];
+            for(int i = 0; i < 5; i++) {
+                values_notes[i] = resultSet.getString(columns[i]);
+            }
+            Note note = new Note(values_notes[2],values_notes[3],values_notes[1], Integer.parseInt(values_notes[0]),values_notes[4]);
+        }
+        resultSet.close();
+        resultSet = statement.executeQuery("SELECT * FROM order_by WHERE id='" +table_name + "'");
+        String order = resultSet.getString("seq");
+
+        list.order_by_a_seq(convert_String_csv_to_int(order));
+        return list;
+    }
+
+    //requires: the first letter must not be ';'
+    //requires: it must only contain ';' and numeric letters
+    //ensures: it splits
+    private int[] convert_String_csv_to_int(String csv) {
+        ArrayList<Integer> array = new ArrayList<>();
+        StringBuilder cache = new StringBuilder();
+        for(int i = 0; i < csv.length(); i++) {
+            if (csv.charAt(i) == ';') {
+                array.add(Integer.parseInt(cache.toString()));
+                cache = new StringBuilder();
+            } else {
+                cache.append(csv.charAt(i));
+            }
+        }
+        int[] res = new int[array.size()];
+        convertArrayList_to_array(array, res);
+        return res;
+    }
+
+    //requires: |array| = arrayList.size()
+    //ensures: (forall i : Z) (0 <= i < array.size() ==> array[i] = arrayList.get(i))
+    private void convertArrayList_to_array(ArrayList<Integer> arrayList, int[] array) {
+        for(int i = 0; i < arrayList.size(); i++) {
+            array[i] = arrayList.get(i);
+        }
     }
 
     //Requires: True
