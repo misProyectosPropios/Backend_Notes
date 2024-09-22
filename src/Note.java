@@ -19,7 +19,7 @@ public class Note {
 
     // requires: (forall i : Z) (0 <= i < |title| ==> s[i] != '\n'
     public Note(String title, String body, String author, int ID) {
-        this("", body, author, ID, new Date().toString());
+        this(title, body, author, ID, new Date().toString());
     }
 
     // requires: (forall i : Z) (0 <= i < |title| ==> s[i] != '\n'
@@ -55,6 +55,10 @@ public class Note {
         return this.ID;
     }
 
+    public String getDate() {
+        return date;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj.getClass().equals(this.getClass())) {
@@ -67,6 +71,6 @@ public class Note {
 
     @Override
     public String toString() {
-        return this.tittle + "\n" + this.body;
+        return "tittle" + this.tittle + "&body" + this.body;
     }
 }
