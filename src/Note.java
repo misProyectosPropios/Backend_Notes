@@ -71,6 +71,6 @@ public class Note {
 
     @Override
     public String toString() {
-        return "tittle" + this.tittle + "&body" + this.body;
+        return "id: " + this.ID + "&author: " + this.author;
     }
 }

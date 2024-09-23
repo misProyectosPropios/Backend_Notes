@@ -7,6 +7,16 @@ public class Note_list {
         this.note_lists = new ArrayList<>();
     }
 
+    @Override
+    public String toString() {
+        String res = "";
+        int size = note_lists.size();
+        for(int i = 0; i < size; i++) {
+            res += String.valueOf(i) + ": " + note_lists.get(i);
+        }
+        return res;
+    }
+
     //requires: note_lists = note_lists0
     //ensures: |note_lists| = |note_lists0| + 1
     //ensures: note_lists = concat(note_lists0, <note>)
@@ -33,11 +43,25 @@ public class Note_list {
         return this.note_lists.get(index);
     }
 
+    //requires: |seq| <= |note_lists|
     //requires: (forall i : Z) (0 <= i < |seq| ==> (exists j : Z) (0 <= j < |note_lists| && note_lists.get(j).getId() = seq[i]))
+    //requires: (forall i, j : Z) (0 <= i < j < |seq| ==> seq[i] != seq[j]
     //ensures  |seq| = |note_lists|
     //ensures: (forall i : Z) (0 <= i < |seq| ==> note_lists.get(i).getId() = seq[i])
     public void order_by_a_seq(int[] seq) {
-
+        Note cache;
+        int size = this.note_lists.size();
+        for(int i = 0; i < seq.length; i++) {
+            for(int j = i; j < size; j++) {
+                if (this.note_lists.get(j).getID() == seq[i]) {
+                    cache = this.note_lists.get(i);
+                    this.note_lists.set(i, this.note_lists.get(j));
+                    this.note_lists.set(j, cache);
+                    cache = null;
+                    break;
+                }
+            }
+        }
     }
 
 }
