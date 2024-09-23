@@ -83,6 +83,42 @@ public class BBDD {
         statement.executeUpdate(query);
     }
 
+
+    //Requires: True
+    //Ensures: if a table exists, doesn't do anything. Else create an empty table with the given name
+    public void create_table_order_by() throws  SQLException{
+        Statement statement = this.con.createStatement();
+        String query = """ 
+                    CREATE TABLE""" + " IF NOT EXISTS order_by (\n" + """
+                    id varchar(30) NOT NULL,
+                    seq varchar(100) NOT NULL,
+                    PRIMARY KEY (ID)
+                );""";
+        statement.executeUpdate(query);
+        statement.close();
+    }
+
+    public void change_table_seq(String table_name, String seq) throws SQLException {
+        boolean exists_some_row_with_id = existId_order_by(table_name);
+        String query;
+        if (!exists_some_row_with_id) {
+            query = "INSERT INTO order_by (id,seq) \nVALUES ('"
+                    + table_name + "', '" + seq +
+                    "');";
+        } else {
+            query = "UPDATE order_by" +
+                    " SET seq='" + seq +
+                    "'\n" +
+                    "WHERE id='" + table_name + "';";
+        }
+        System.out.println(query);
+        Statement statement = this.con.createStatement();
+        statement.execute(query);
+        statement.close();
+    }
+
+
+
     //Require: true
     //Ensures: res = True <==> Exist a table such as TABLE_NAME = table_name
     private Boolean existTable(String table_name) throws SQLException {
@@ -108,6 +144,20 @@ public class BBDD {
         resultSet.close();
         return res;
     }
+
+    //Requires: table_name must be a table name of the database
+    //Ensures: res = True <==> Exist a row with the row.id = id
+    private Boolean existId_order_by(String table_name) throws  SQLException {
+        String look_for = "SELECT * FROM order_by WHERE id='" + table_name + "';";
+        Statement statement = this.con.createStatement();
+        ResultSet resultSet = statement.executeQuery(look_for);
+        boolean res = resultSet.next();
+        //Close the connections
+        statement.close();
+        resultSet.close();
+        return res;
+    }
+
 
     //requires: table_name should be a table name of the database
     //Ensures: if the note exists, it will be modified. Else it will create a new one
@@ -143,18 +193,20 @@ public class BBDD {
         ResultSet resultSet = statement.executeQuery("SELECT * FROM " + table_name);
 
         //Run over the resultSet
-
         while (resultSet.next()) {
             String[] values_notes = new String[5];
             for(int i = 0; i < 5; i++) {
                 values_notes[i] = resultSet.getString(columns[i]);
             }
             Note note = new Note(values_notes[2],values_notes[3],values_notes[1], Integer.parseInt(values_notes[0]),values_notes[4]);
+            list.add_note_to_list_last_index(note);
         }
         resultSet.close();
-        resultSet = statement.executeQuery("SELECT * FROM order_by WHERE id='" +table_name + "'");
-        String order = resultSet.getString("seq");
 
+        String query = "SELECT * FROM order_by WHERE id='" +table_name + "'";
+        resultSet = statement.executeQuery(query);
+        resultSet.next();
+        String order = resultSet.getString("seq");
         list.order_by_a_seq(convert_String_csv_to_int(order));
         return list;
     }
@@ -189,7 +241,7 @@ public class BBDD {
     //Requires: True
     //Ensures: given the table name, it will disappear the table from the given database
     public void delete_table(String table_name) throws SQLException {
-        String query = "DROP TABLE " + table_name + ";";
+        String query = "DROP TABLE IF EXISTS " + table_name + ";";
         Statement statement = this.con.createStatement();
         try {
             statement.execute(query);
