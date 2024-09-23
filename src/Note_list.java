@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 public class Note_list {
-    private ArrayList<Note> note_lists = new ArrayList<>();
+    private ArrayList<Note> note_lists;
 
     public Note_list() {
         this.note_lists = new ArrayList<>();
@@ -9,12 +9,12 @@ public class Note_list {
 
     @Override
     public String toString() {
-        String res = "";
+        StringBuilder res = new StringBuilder();
         int size = note_lists.size();
         for(int i = 0; i < size; i++) {
-            res += String.valueOf(i) + ": " + note_lists.get(i);
+            res.append(i).append(": ").append(note_lists.get(i));
         }
-        return res;
+        return res.toString();
     }
 
     //requires: note_lists = note_lists0
